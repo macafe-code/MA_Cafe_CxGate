@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rate Your Experience</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:     #1a1a2e;
+      --muted:   #6b7280;
+      --gold:    #d4a843;
+      --gold-lt: #f5e6c3;
+      --bg:      #faf8f4;
+      --card:    #ffffff;
+      --border:  #e8e2d9;
+      --radius:  1.2rem;
+      --star-off:#ddd6cb;
+      --star-on: #d4a843;
+    }
+
+    html { font-size: 17px; -webkit-text-size-adjust: 100%; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #d4a843, transparent);
+      top: -150px; right: -150px;
+    }
+    body::after {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, #1a1a2e, transparent);
+      bottom: -100px; left: -100px;
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 3rem 2.6rem 2.8rem;
+      width: 100%;
+      max-width: 480px;
+      box-shadow:
+        0 1px 2px rgba(0,0,0,0.04),
+        0 8px 32px rgba(26,26,46,0.08),
+        0 32px 64px rgba(26,26,46,0.05);
+      animation: cardIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(28px) scale(0.97); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .header { text-align: center; margin-bottom: 2.4rem; }
+
+    .header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      color: var(--ink);
+      line-height: 1.15;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.3px;
+    }
+
+    .header p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 300;
+      line-height: 1.7;
+    }
+
+    .rule {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 1.6rem 0 2rem;
+    }
+
+    .field { margin-bottom: 1.4rem; }
+
+    .label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .label .opt {
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      margin-left: 0.3rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 0.7rem;
+      font-size: 0.95rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      outline: none;
+      -webkit-appearance: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--gold);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(212,168,67,0.14);
+    }
+
+    input::placeholder { color: #c2bdb5; font-size: 0.88rem; }
+
+    .star-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.7rem;
+    }
+
+    /* Stars: evenly distributed across full width */
+    .stars {
+      display: flex;
+      flex-direction: row-reverse;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .stars input { display: none; }
+
+    .stars label {
+      flex: 1;
+      text-align: center;
+      font-size: 3rem;
+      color: var(--star-off);
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.15s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .stars label:active { transform: scale(0.85); }
+
+    .stars input:checked ~ label,
+    .stars label:hover,
+    .stars label:hover ~ label {
+      color: var(--star-on);
+    }
+
+    .stars input:checked + label { transform: scale(1.12); }
+
+    .star-hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+      text-align: center;
+    }
+
+    /* Simple spinner shown while submitting */
+    .spinner {
+      display: none;
+      width: 34px;
+      height: 34px;
+      margin: 1.6rem auto 0;
+      border: 3px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .stars.disabled label { pointer-events: none; opacity: 0.55; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+
+    .toast {
+      display: none;
+      margin-top: 1.2rem;
+      padding: 1rem 1.2rem;
+      border-radius: 0.75rem;
+      font-size: 0.88rem;
+      font-weight: 500;
+      line-height: 1.6;
+      text-align: center;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .toast.error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    @media (max-width: 500px) {
+      .card { padding: 2.2rem 1.4rem 2.4rem; border-radius: 1rem; }
+      .header h1 { font-size: 1.7rem; }
+      .stars label { font-size: 2.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="header">
+    <img src="https://github.com/mithusan-glitch/Logos/blob/main/MA%20Cafe%20small.png?raw=true"
+     alt="Logo"
+     style="display:block;margin:0 auto 1.2rem;width:280px;height:auto;object-fit:contain;"/>
+    <h1>How was your<br/><em>experience?</em></h1>
+    <p>Your feedback helps us serve you better.<br/>It only takes 10 seconds.</p>
+  </div>
+
+  <div class="rule"></div>
+
+  <div id="feedbackForm">
+
+    <div class="field">
+      <label class="label" for="name">Your Name <span class="opt">(optional)</span></label>
+      <input type="text" id="name" placeholder="e.g. Sarah M." autocomplete="name"/>
+    </div>
+
+    <div class="field">
+      <label class="label" for="phone">Phone Number / Email <span class="opt">(optional)</span></label>
+      <input type="text" id="phone" placeholder="e.g. 0449844642 or you@email.com" autocomplete="off"/>
+    </div>
+
+    <div class="field">
+      <span class="star-label">Tap a star to rate</span>
+      <div class="stars" id="starGroup">
+        <input type="radio" id="s5" name="rating" value="5"/>
+        <label for="s5" title="Excellent">&#9733;</label>
+        <input type="radio" id="s4" name="rating" value="4"/>
+        <label for="s4" title="Good">&#9733;</label>
+        <input type="radio" id="s3" name="rating" value="3"/>
+        <label for="s3" title="Average">&#9733;</label>
+        <input type="radio" id="s2" name="rating" value="2"/>
+        <label for="s2" title="Poor">&#9733;</label>
+        <input type="radio" id="s1" name="rating" value="1"/>
+        <label for="s1" title="Terrible">&#9733;</label>
+      </div>
+      <div class="star-hint" id="starHint"></div>
+    </div>
+
+  </div>
+
+  <div class="spinner" id="spinner"></div>
+
+  <div class="toast" id="toastBox"></div>
+
+</div>
+
+<!-- ─────────────────────────────────────────────
+     EMAIL TEMPLATES
+     These are never displayed on the page — they're only read by the
+     JavaScript below, which fills in {{NAME}} and sends the resulting
+     HTML to the backend so it can be emailed to the customer. To change
+     the wording, formatting, or spacing of either email, edit the HTML
+     inside these two <template> blocks directly.
+     ───────────────────────────────────────────── -->
+
+<template id="positiveEmailTemplate" data-subject="Thank You for Your Feedback — BusinessFocus360">
+  <div style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:1.6; color:#1a1a2e;">
+    <p style="margin:0 0 16px 0;">Hi {{NAME}},</p>
+    <p style="margin:0 0 16px 0;">Thank you for taking the time to share your feedback with us.</p>
+    <p style="margin:0 0 16px 0;">We are delighted to know that you enjoyed your experience and truly appreciate you taking the time to let us know. Feedback such as yours is incredibly valuable to our team and provides great encouragement to everyone who works hard to create memories for our guests.<br>
+    We hope to have the pleasure of welcoming you back soon.</p>
+    <p style="margin:0;">Warm regards,<br>
+    Team BusinessFocus360</p>
+  </div>
+</template>
+
+<template id="negativeEmailTemplate" data-subject="We're Sorry to Hear About Your Experience — BusinessFocus360">
+  <div style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:1.6; color:#1a1a2e;">
+    <p style="margin:0 0 16px 0;">Hi {{NAME}},</p>
+    <p style="margin:0 0 16px 0;">Thank you for taking the time to share your feedback following your recent stay with us.</p>
+    <p style="margin:0 0 16px 0;">We are sorry to hear that your experience did not meet the standard we strive to deliver. We genuinely value your feedback, and we appreciate you bringing your concerns to our attention.</p>
+    <p style="margin:0 0 16px 0;">We take your comments seriously and have shared your feedback with the relevant team so that we can understand what happened and identify where improvements are needed.</p>
+    <p style="margin:0 0 16px 0;">We would also appreciate the opportunity to learn more about your experience and, where possible, make things right. If you are happy for a member of our team to contact you, please let us know, and we will be pleased to follow up with you personally.</p>
+    <p style="margin:0 0 16px 0;">Once again, please accept our sincere apologies that we did not meet your expectations. Your feedback gives us an opportunity to improve, and we hope we can regain your confidence and provide you with a much better experience in the future.</p>
+    <p style="margin:0;">Warm regards,<br>
+    Team BusinessFocus360</p>
+  </div>
+</template>
+
+<script>
+  const BACKEND_URL = "";
+  const REVIEW_URL     = "https://search.google.com/local/writereview?placeid=ChIJx7Jf8t5Z4joRc0vrTA_6UeU";
+  const LOW_RATING_URL = "https://docs.google.com/forms/d/e/1FAIpQLSePhcrQ6NKQQKRlL3Q0daEQfJPEQUMi-aaorK1vWT6r27qQ7A/viewform?usp=publish-editor";
+  const HIGH_RATING = 4;
+  const SUBMIT_TIMEOUT_MS = 600; // keepalive already lets the POST finish in the background after we leave, so this is just a tiny safety cap
+
+  // Basic client-side email pattern check — this only affects the hint text
+  // shown to the user. The backend independently validates the value again
+  // before deciding whether to send an email, so a mistake here is harmless.
+  const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  // Message shown in the small text under the stars, in place of "Good"/"Excellent"/etc.
+  function hintFor(rating) {
+    return rating >= HIGH_RATING
+      ? "Thanks for the positive rating!"
+      : "Sorry for your experience";
+  }
+
+  // Prevents the customer's name from breaking the email's HTML structure
+  // (e.g. if it contained < or &).
+  function escapeHtml(str) {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // Builds the final HTML for the email that should be sent, filling in
+  // the customer's name (or "Guest" if they left it blank) into whichever
+  // template matches their rating. Returns { subject, html } or null if
+  // the templates aren't found for some reason.
+  function buildEmailPayload(rating, name) {
+    var templateId = rating >= HIGH_RATING ? 'positiveEmailTemplate' : 'negativeEmailTemplate';
+    var tpl = document.getElementById(templateId);
+    if (!tpl) return null;
+
+    var greetName = (name && name.trim() !== "") ? escapeHtml(name.trim()) : "Guest";
+    var html = tpl.innerHTML.replace(/{{NAME}}/g, greetName);
+    var subject = tpl.getAttribute('data-subject') || "";
+
+    return { subject: subject, html: html };
+  }
+
+  let submitting = false; // guard against double taps
+
+  // The contact field now accepts either a phone number or an email address,
+  // so we no longer strip any characters from it — the backend figures out
+  // which kind of value it received.
+
+  // Update hint text on hover/change
+  document.querySelectorAll('input[name="rating"]').forEach(function(r) {
+    r.addEventListener('change', function() {
+      document.getElementById('starHint').textContent = hintFor(parseInt(r.value, 10));
+    });
+  });
+
+  function timeoutPromise(ms) {
+    return new Promise(function(resolve) {
+      setTimeout(resolve, ms);
+    });
+  }
+
+  function redirectFor(rating) {
+    if (rating >= HIGH_RATING) {
+      window.location.href = REVIEW_URL;
+    } else {
+      window.location.href = LOW_RATING_URL;
+    }
+  }
+
+  // Star click — submit to backend FIRST, then redirect
+  document.querySelectorAll('.stars label').forEach(function(lbl) {
+    lbl.addEventListener('click', function() {
+      if (submitting) return;
+
+      // Tiny tick to let the radio's checked value register before reading it
+      setTimeout(async function() {
+        var ratingEl = document.querySelector('input[name="rating"]:checked');
+        if (!ratingEl) return;
+
+        submitting = true;
+
+        var rating = parseInt(ratingEl.value, 10);
+        var name = document.getElementById('name').value.trim();
+        var contact = document.getElementById('phone').value.trim();
+        var isEmail = EMAIL_PATTERN.test(contact);
+
+        // Lock the UI while we submit
+        document.getElementById('starGroup').classList.add('disabled');
+        document.getElementById('spinner').style.display = 'block';
+
+        var formData = new FormData();
+        formData.append('name',    name);
+        formData.append('phone',   contact);   // kept as "phone" for backend/sheet compatibility — may hold a phone number OR an email
+        formData.append('isEmail', isEmail ? '1' : '0');
+        formData.append('rating',  ratingEl.value);
+
+        // Only build/send the email HTML when the contact field looks like
+        // an email address — the backend will still double-check this.
+        if (isEmail) {
+          var payload = buildEmailPayload(rating, name);
+          if (payload) {
+            formData.append('emailSubject', payload.subject);
+            formData.append('emailHtml', payload.html);
+          }
+        }
+
+        var submitPromise = fetch(BACKEND_URL, {
+          method: 'POST',
+          body: formData,
+          keepalive: true // lets the request finish sending even if we navigate away right after
+        }).catch(function() {
+          // Swallow network/CORS errors — we still want to redirect either way,
+          // but keepalive above gives the request its best chance to land first.
+          // If the entered email was invalid or the mail failed to send, that's
+          // fine too — the backend still records the response and we still redirect.
+        });
+
+        // Wait for the submit to finish, but don't block the user longer than SUBMIT_TIMEOUT_MS
+        await Promise.race([submitPromise, timeoutPromise(SUBMIT_TIMEOUT_MS)]);
+
+        // Hide form
+        document.getElementById('feedbackForm').style.display = 'none';
+
+        // Blank the page to avoid a flash of content during redirect
+        document.body.innerHTML = '';
+        document.body.style.background = '#faf8f4';
+
+        redirectFor(rating);
+      }, 0);
+    });
+  });
+</script>
+</body>
+</html>
